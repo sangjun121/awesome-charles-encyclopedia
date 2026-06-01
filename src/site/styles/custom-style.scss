@@ -4,7 +4,7 @@
 ***/
 
 body {
-    --dg-content-max-width: 720px;
+    --dg-content-max-width: 800px;
     --dg-content-font-size: 16px;
     --dg-content-line-height: 1.68;
 
@@ -162,6 +162,9 @@ body.theme-light {
 
 body .content {
     width: min(var(--dg-content-max-width), calc(100vw - 40px));
+    max-width: var(--dg-content-max-width);
+    margin-left: auto !important;
+    margin-right: auto !important;
     word-break: keep-all;
     overflow-wrap: break-word;
     text-rendering: optimizeLegibility;
@@ -378,14 +381,14 @@ body .token.entity {
     color: var(--text-muted);
 }
 
+body .filetree-wrapper,
+body .sidebar {
+    display: none !important;
+}
+
 @media (max-width: 1400px) {
     body .content {
-        width: auto;
-    }
-
-    body .sidebar {
-        margin-left: calc(var(--dg-filetree-width) + 20px);
-        max-width: calc(100vw - var(--dg-filetree-width) - 50px);
+        width: min(var(--dg-content-max-width), calc(100vw - 40px));
     }
 }
 
@@ -393,9 +396,5 @@ body .token.entity {
     body .content {
         width: min(var(--dg-content-max-width), calc(100vw - 32px));
         font-size: 15.5px;
-    }
-
-    body .sidebar {
-        max-width: min(var(--dg-content-max-width), calc(100vw - 32px));
     }
 }
