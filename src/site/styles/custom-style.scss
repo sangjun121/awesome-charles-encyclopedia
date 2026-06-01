@@ -3,23 +3,18 @@ body {
       ADD YOUR CUSTOM STYLING HERE. (INSIDE THE body {...} section.)
       IT WILL TAKE PRECEDENCE OVER THE STYLING IN THE STYLE.CSS FILE.
    ***/
-    --dg-content-max-width: 880px;
-    --dg-content-font-size: 18px;
-    --dg-content-line-height: 1.72;
+    --background-primary: #fbfbfb;
+    --background-secondary: #f1f1f1;
+    --background-modifier-border: #dedede;
+    --text-normal: #3f424a;
+    --text-muted: #7d818a;
+    --text-faint: #a4a7ad;
+    --text-accent: #3d5fba;
 
-    --dg-filetree-width: 210px;
-    --dg-filetree-min-width: 210px;
-    --dg-filetree-gap: 36px;
-    --dg-filetree-padding: 14px 16px;
-    --dg-filetree-title-size: 24px;
-
-    --dg-sidebar-gap: 36px;
-    --dg-sidebar-max-width: 260px;
-    --dg-sidebar-container-padding: 12px;
-    --dg-graph-width: 210px;
-    --dg-graph-height: 210px;
-    --dg-toc-font-size: 0.9rem;
-    --dg-notelink-size: 0.82rem;
+    --dg-content-max-width: 700px;
+    --dg-content-padding-top: 92px;
+    --dg-content-font-size: 16px;
+    --dg-content-line-height: 1.66;
 
     --font-default: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
         "Noto Sans KR", "Malgun Gothic", "Segoe UI", sans-serif;
@@ -27,22 +22,83 @@ body {
     --font-text: var(--font-default);
 
     font-family: var(--font-default);
-    letter-spacing: 0.01em;
+    letter-spacing: 0;
+    background: var(--background-primary) !important;
+    color: var(--text-normal) !important;
+    min-height: 100vh;
+
+    &.theme-dark,
+    &.theme-light {
+        background: var(--background-primary) !important;
+        color: var(--text-normal) !important;
+    }
+
+    &::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 38px;
+        background:
+            radial-gradient(circle at 18px 19px, #ff6b5f 0 6px, transparent 7px),
+            radial-gradient(circle at 38px 19px, #f7c84b 0 6px, transparent 7px),
+            radial-gradient(circle at 58px 19px, #63c75f 0 6px, transparent 7px),
+            linear-gradient(90deg, transparent 0 82px, #efefef 82px 300px, transparent 300px),
+            #dedede;
+        border-bottom: 1px solid #d3d3d3;
+        z-index: 30;
+    }
+
+    &::after {
+        content: "";
+        position: fixed;
+        top: 38px;
+        bottom: 0;
+        left: 0;
+        width: 54px;
+        background:
+            radial-gradient(circle at 50% 22px, #a9abb0 0 3px, transparent 4px),
+            radial-gradient(circle at 50% 54px, #a9abb0 0 3px, transparent 4px),
+            radial-gradient(circle at 50% 86px, #a9abb0 0 3px, transparent 4px),
+            radial-gradient(circle at 50% 118px, #a9abb0 0 3px, transparent 4px),
+            #f4f4f4;
+        border-right: 1px solid #e0e0e0;
+        z-index: 29;
+    }
+
+    .filetree-wrapper,
+    .sidebar,
+    .navbar,
+    .notegrowthhistory {
+        display: none !important;
+    }
 
     .content {
         width: min(var(--dg-content-max-width), calc(100vw - 40px));
+        max-width: var(--dg-content-max-width);
+        margin-left: auto !important;
+        margin-right: auto !important;
         word-break: keep-all;
         overflow-wrap: break-word;
         text-rendering: optimizeLegibility;
         -webkit-font-smoothing: antialiased;
+        font-weight: 500;
+        color: var(--text-normal);
+
+        > header {
+            position: relative;
+            margin-bottom: 32px;
+            padding-top: 8px;
+        }
 
         p,
         li {
-            line-height: 1.78;
+            line-height: 1.68;
         }
 
         p {
-            margin-block: 0.95em;
+            margin-block: 0.82em;
         }
 
         h1,
@@ -54,17 +110,83 @@ body {
         }
 
         h1 {
-            font-size: 2.05rem;
+            position: fixed;
+            top: 52px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 31;
+            color: #343741;
+            max-width: calc(100vw - 160px);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 12px;
+            font-weight: 700;
+            margin: 0;
         }
 
         h2 {
-            font-size: 1.55rem;
-            margin-top: 2.1em;
+            color: #343741;
+            font-size: 1.35rem;
+            font-weight: 800;
+            margin-top: 2.5em;
+            margin-bottom: 1.05em;
+            padding-bottom: 0.45em;
+            border-bottom: 2px solid var(--background-modifier-border);
         }
 
         h3 {
-            font-size: 1.25rem;
-            margin-top: 1.8em;
+            color: #343741;
+            font-size: 1.08rem;
+            font-weight: 800;
+            margin-top: 1.9em;
+            margin-bottom: 0.55em;
+        }
+
+        h4 {
+            color: #343741;
+            font-size: 1rem;
+            font-weight: 800;
+            margin-top: 1.6em;
+        }
+
+        strong {
+            color: #343741;
+            font-weight: 800;
+        }
+
+        em {
+            color: #4f535c;
+            font-weight: 700;
+        }
+
+        ul,
+        ol {
+            padding-inline-start: 1.6em;
+        }
+
+        li {
+            margin-block: 0.24em;
+        }
+
+        blockquote {
+            background: transparent;
+            border-left: 2px solid var(--background-modifier-border);
+            color: var(--text-muted);
+            margin: 1.2em 0;
+            padding: 0.2em 0 0.2em 1em;
+        }
+
+        blockquote::before {
+            content: none;
+        }
+
+        code {
+            border-radius: 4px;
+        }
+
+        a {
+            color: var(--text-accent);
         }
     }
 
@@ -76,23 +198,15 @@ body {
 
     @media (max-width: 1400px) {
         .content {
-            width: auto;
-        }
-
-        .sidebar {
-            margin-left: calc(var(--dg-filetree-width) + 20px);
-            max-width: calc(100vw - var(--dg-filetree-width) - 50px);
+            max-width: var(--dg-content-max-width);
         }
     }
 
     @media (max-width: 1000px) {
         .content {
             width: min(var(--dg-content-max-width), calc(100vw - 32px));
-            font-size: 17px;
-        }
-
-        .sidebar {
-            max-width: min(var(--dg-content-max-width), calc(100vw - 32px));
+            font-size: 15.5px;
+            padding-top: 90px;
         }
     }
 }
