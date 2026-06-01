@@ -1,9 +1,9 @@
 const fs = require("fs");
 const path = require("path");
-const matter = require("gray-matter");
-const slugify = require("@sindresorhus/slugify");
+const { execFileSync } = require("child_process");
 
 const NOTES_DIR = path.join(process.cwd(), "src/site/notes");
+let noteOrderByPath;
 
 function normalizePermalink(permalink) {
   if (!permalink || typeof permalink !== "string") return undefined;
@@ -16,31 +16,14 @@ function normalizePermalink(permalink) {
 }
 
 function segmentToSlug(segment) {
-  const slug = slugify(segment);
-  if (slug) return slug;
-
-  return segment
+  const slug = segment
     .normalize("NFC")
     .trim()
     .replace(/[^\p{Letter}\p{Number}]+/gu, "-")
     .replace(/^-+|-+$/g, "")
     .toLowerCase();
-}
 
-function filePathToPermalink(inputPath) {
-  if (!inputPath) return undefined;
-
-  const withoutNotesPrefix = inputPath
-    .replace(/\\/g, "/")
-    .replace(/^.*?src\/site\/notes\//, "")
-    .replace(/\.(md|markdown)$/i, "");
-
-  const segments = withoutNotesPrefix
-    .split("/")
-    .map(segmentToSlug)
-    .filter(Boolean);
-
-  return normalizePermalink(segments.join("/"));
+  return slug || "untitled";
 }
 
 function readMarkdownFiles(dir) {
@@ -54,41 +37,75 @@ function readMarkdownFiles(dir) {
   });
 }
 
-function findDuplicateFrontmatterPermalinks() {
-  const permalinkCounts = new Map();
-
-  for (const filePath of readMarkdownFiles(NOTES_DIR)) {
-    const contents = fs.readFileSync(filePath, "utf8");
-    const permalink = normalizePermalink(matter(contents).data.permalink);
-    if (!permalink) continue;
-    permalinkCounts.set(permalink, (permalinkCounts.get(permalink) || 0) + 1);
-  }
-
-  return new Set(
-    [...permalinkCounts.entries()]
-      .filter(([, count]) => count > 1)
-      .map(([permalink]) => permalink)
-  );
+function normalizeNotePath(inputPath) {
+  return inputPath
+    .replace(/\\/g, "/")
+    .replace(/^.*?src\/site\/notes\//, "")
+    .replace(/\.(md|markdown)$/i, "")
+    .normalize("NFC");
 }
 
-const duplicateFrontmatterPermalinks = findDuplicateFrontmatterPermalinks();
+function getGitCreatedAt(filePath) {
+  try {
+    const output = execFileSync(
+      "git",
+      ["log", "--diff-filter=A", "--format=%at", "--", filePath],
+      { encoding: "utf8" }
+    ).trim();
+
+    return Number(output.split("\n").at(-1)) || Number.MAX_SAFE_INTEGER;
+  } catch {
+    return Number.MAX_SAFE_INTEGER;
+  }
+}
+
+function getNoteOrderByPath() {
+  if (noteOrderByPath) return noteOrderByPath;
+
+  const notes = readMarkdownFiles(NOTES_DIR)
+    .map((filePath) => ({
+      filePath,
+      notePath: normalizeNotePath(filePath),
+      createdAt: getGitCreatedAt(filePath),
+    }))
+    .sort((a, b) => a.createdAt - b.createdAt || a.notePath.localeCompare(b.notePath));
+
+  const padLength = Math.max(3, String(notes.length).length);
+  noteOrderByPath = new Map(
+    notes.map((note, index) => [
+      note.notePath,
+      String(index + 1).padStart(padLength, "0"),
+    ])
+  );
+
+  return noteOrderByPath;
+}
+
+function filePathToPermalink(inputPath) {
+  if (!inputPath) return undefined;
+
+  const withoutNotesPrefix = normalizeNotePath(inputPath);
+
+  const segments = withoutNotesPrefix
+    .split("/")
+    .map(segmentToSlug)
+    .filter(Boolean);
+
+  if (segments.length) {
+    const order = getNoteOrderByPath().get(withoutNotesPrefix) || "000";
+    segments[segments.length - 1] = `${segments[segments.length - 1]}-${order}`;
+  }
+
+  return normalizePermalink(segments.join("/"));
+}
 
 function hasGardenEntryTag(tags) {
   return Array.isArray(tags) && tags.includes("gardenEntry");
 }
 
-function resolveNotePermalink({ permalink, inputPath, tags }) {
+function resolveNotePermalink({ inputPath, tags }) {
   if (hasGardenEntryTag(tags)) return "/";
-
-  const normalizedPermalink = normalizePermalink(permalink);
-  if (
-    normalizedPermalink &&
-    !duplicateFrontmatterPermalinks.has(normalizedPermalink)
-  ) {
-    return normalizedPermalink;
-  }
-
-  return filePathToPermalink(inputPath) || normalizedPermalink || undefined;
+  return filePathToPermalink(inputPath);
 }
 
 module.exports = {
