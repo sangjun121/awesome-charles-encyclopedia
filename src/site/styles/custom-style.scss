@@ -3,11 +3,96 @@ body {
       ADD YOUR CUSTOM STYLING HERE. (INSIDE THE body {...} section.)
       IT WILL TAKE PRECEDENCE OVER THE STYLING IN THE STYLE.CSS FILE.
    ***/
-    //  background-color: white;
-    //  .content {
-    //   font-size: 14px;
-    //  }
-    //  h1 {
-    //   color: black;
-    //  }
+    --dg-content-max-width: 880px;
+    --dg-content-font-size: 18px;
+    --dg-content-line-height: 1.72;
+
+    --dg-filetree-width: 210px;
+    --dg-filetree-min-width: 210px;
+    --dg-filetree-gap: 36px;
+    --dg-filetree-padding: 14px 16px;
+    --dg-filetree-title-size: 24px;
+
+    --dg-sidebar-gap: 36px;
+    --dg-sidebar-max-width: 260px;
+    --dg-sidebar-container-padding: 12px;
+    --dg-graph-width: 210px;
+    --dg-graph-height: 210px;
+    --dg-toc-font-size: 0.9rem;
+    --dg-notelink-size: 0.82rem;
+
+    --font-default: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
+        "Noto Sans KR", "Malgun Gothic", "Segoe UI", sans-serif;
+    --font-interface: var(--font-default);
+    --font-text: var(--font-default);
+
+    font-family: var(--font-default);
+    letter-spacing: 0.01em;
+
+    .content {
+        width: min(var(--dg-content-max-width), calc(100vw - 40px));
+        word-break: keep-all;
+        overflow-wrap: break-word;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+
+        p,
+        li {
+            line-height: 1.78;
+        }
+
+        p {
+            margin-block: 0.95em;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            letter-spacing: 0;
+            line-height: 1.32;
+        }
+
+        h1 {
+            font-size: 2.05rem;
+        }
+
+        h2 {
+            font-size: 1.55rem;
+            margin-top: 2.1em;
+        }
+
+        h3 {
+            font-size: 1.25rem;
+            margin-top: 1.8em;
+        }
+    }
+
+    .filetree-sidebar,
+    .sidebar {
+        font-family: var(--font-default);
+        letter-spacing: 0;
+    }
+
+    @media (max-width: 1400px) {
+        .content {
+            width: auto;
+        }
+
+        .sidebar {
+            margin-left: calc(var(--dg-filetree-width) + 20px);
+            max-width: calc(100vw - var(--dg-filetree-width) - 50px);
+        }
+    }
+
+    @media (max-width: 1000px) {
+        .content {
+            width: min(var(--dg-content-max-width), calc(100vw - 32px));
+            font-size: 17px;
+        }
+
+        .sidebar {
+            max-width: min(var(--dg-content-max-width), calc(100vw - 32px));
+        }
+    }
 }
