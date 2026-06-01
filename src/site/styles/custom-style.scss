@@ -50,8 +50,8 @@ body.theme-dark {
     --background-modifier-error-rgb: 61, 0, 0;
     --background-modifier-error-hover: #470000;
     --background-modifier-cover: rgba(0, 0, 0, 0.6);
-    --text-accent: #61afef;
-    --text-accent-hover: #70bdfc;
+    --text-accent: #c4b5fd;
+    --text-accent-hover: #ddd6fe;
     --text-normal: #dcddde;
     --text-muted: #888;
     --text-faint: rgb(81, 86, 99);
@@ -74,7 +74,7 @@ body.theme-dark {
     --green: #98c379;
     --aqua: #56b6c2;
     --purple: #c678dd;
-    --blue: #61afef;
+    --blue: #c4b5fd;
     --yellow: #e5c07b;
     --nav-item-color-active: #fff;
     --background-modifier-hover: hsla(var(--accent-h), calc(var(--accent-s) - 35%), var(--accent-l), 0.06);
@@ -100,8 +100,8 @@ body.theme-light {
     --background-modifier-error-rgb: 230, 135, 135;
     --background-modifier-error-hover: #ff9494;
     --background-modifier-cover: rgba(0, 0, 0, 0.8);
-    --text-accent: #1592ff;
-    --text-accent-hover: #097add;
+    --text-accent: #7c3aed;
+    --text-accent-hover: #6d28d9;
     --text-normal: #383a42;
     --text-muted: #8e8e90;
     --text-faint: #999;
@@ -112,7 +112,7 @@ body.theme-light {
     --text-on-accent: #f2f2f2;
     --interactive-normal: #eaeaeb;
     --interactive-hover: #dbdbdc;
-    --interactive-accent-rgb: 21, 146, 255;
+    --interactive-accent-rgb: 124, 58, 237;
     --interactive-accent-hover: hsl(var(--accent-h), calc(var(--accent-s) - 10%), calc(var(--accent-l) - 4%));
     --scrollbar-active-thumb-bg: rgba(0, 0, 0, 0.2);
     --scrollbar-bg: rgba(0, 0, 0, 0.05);
@@ -122,7 +122,7 @@ body.theme-light {
     --gray-2: #383a42;
     --red: #e75545;
     --green: #4ea24c;
-    --blue: #3d74f6;
+    --blue: #7c3aed;
     --purple: #a625a4;
     --aqua: #0084bc;
     --yellow: #e35649;
@@ -163,7 +163,13 @@ body.theme-light {
 body .content {
     width: min(var(--dg-content-max-width), calc(100vw - 40px));
     max-width: var(--dg-content-max-width);
-    margin-left: auto !important;
+    margin-left: max(
+        calc(var(--dg-filetree-min-width) + var(--dg-filetree-gap)),
+        min(
+            calc((100vw - var(--dg-content-max-width)) / 2),
+            calc(100vw - var(--dg-content-max-width) - var(--dg-sidebar-max-width) - var(--dg-sidebar-gap) - 20px)
+        )
+    ) !important;
     margin-right: auto !important;
     word-break: keep-all;
     overflow-wrap: break-word;
@@ -381,18 +387,67 @@ body .token.entity {
     color: var(--text-muted);
 }
 
-body .filetree-wrapper,
-body .sidebar {
+.sidebar-toggle-controls {
+    position: fixed;
+    top: 72px;
+    right: 18px;
+    display: flex;
+    gap: 8px;
+    z-index: 50;
+}
+
+.sidebar-toggle-button {
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--background-primary) 88%, transparent);
+    color: var(--text-muted);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    cursor: pointer;
+}
+
+.sidebar-toggle-button:hover,
+.sidebar-toggle-button.is-active {
+    color: var(--text-accent);
+    border-color: color-mix(in srgb, var(--text-accent) 45%, var(--background-modifier-border));
+    background: color-mix(in srgb, var(--text-accent) 10%, var(--background-primary));
+}
+
+.sidebar-toggle-button svg {
+    width: 18px;
+    height: 18px;
+}
+
+body.dg-left-sidebar-hidden .filetree-wrapper,
+body.dg-right-sidebar-hidden .sidebar {
     display: none !important;
+}
+
+body.dg-left-sidebar-hidden .content,
+body.dg-right-sidebar-hidden .content,
+body.dg-left-sidebar-hidden.dg-right-sidebar-hidden .content {
+    margin-left: auto !important;
+    margin-right: auto !important;
 }
 
 @media (max-width: 1400px) {
     body .content {
         width: min(var(--dg-content-max-width), calc(100vw - 40px));
+        margin-left: auto !important;
+        margin-right: auto !important;
     }
 }
 
 @media (max-width: 1000px) {
+    .sidebar-toggle-controls {
+        display: none;
+    }
+
     body .content {
         width: min(var(--dg-content-max-width), calc(100vw - 32px));
         font-size: 15.5px;

@@ -1,0 +1,66 @@
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const leftKey = "dg-left-sidebar-hidden";
+    const rightKey = "dg-right-sidebar-hidden";
+    const body = document.body;
+
+    function getStoredState(key) {
+      try {
+        return window.localStorage && window.localStorage.getItem(key) === "true";
+      } catch (error) {
+        return false;
+      }
+    }
+
+    function storeState(key, hidden) {
+      try {
+        if (window.localStorage) {
+          window.localStorage.setItem(key, hidden ? "true" : "false");
+        }
+      } catch (error) {
+        // Browsers can disable storage in restricted contexts; the toggle still works for this page view.
+      }
+    }
+
+    function setSidebarState(key, hidden) {
+      body.classList.toggle(key, hidden);
+      storeState(key, hidden);
+    }
+
+    setSidebarState(leftKey, getStoredState(leftKey));
+    setSidebarState(rightKey, getStoredState(rightKey));
+
+    const controls = document.createElement("div");
+    controls.className = "sidebar-toggle-controls";
+    controls.innerHTML = `
+      <button class="sidebar-toggle-button" type="button" data-sidebar-toggle="left" aria-label="Toggle left sidebar" title="왼쪽 사이드바">
+        <i data-lucide="panel-left"></i>
+      </button>
+      <button class="sidebar-toggle-button" type="button" data-sidebar-toggle="right" aria-label="Toggle right sidebar" title="오른쪽 사이드바">
+        <i data-lucide="panel-right"></i>
+      </button>
+    `;
+
+    document.body.appendChild(controls);
+
+    function syncButtons() {
+      controls
+        .querySelector('[data-sidebar-toggle="left"]')
+        .classList.toggle("is-active", body.classList.contains(leftKey));
+      controls
+        .querySelector('[data-sidebar-toggle="right"]')
+        .classList.toggle("is-active", body.classList.contains(rightKey));
+    }
+
+    controls.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-sidebar-toggle]");
+      if (!button) return;
+
+      const key = button.dataset.sidebarToggle === "left" ? leftKey : rightKey;
+      setSidebarState(key, !body.classList.contains(key));
+      syncButtons();
+    });
+
+    syncButtons();
+  });
+</script>
