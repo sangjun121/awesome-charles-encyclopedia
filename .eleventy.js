@@ -27,6 +27,7 @@ const htmlMinifier = require("html-minifier-terser");
 const pluginRss = require("@11ty/eleventy-plugin-rss");
 
 const { headerToId, namedHeadingsFilter } = require("./src/helpers/utils");
+const { resolveNotePermalink } = require("./src/helpers/permalinkUtils");
 const {
   userMarkdownSetup,
   userEleventySetup,
@@ -76,15 +77,11 @@ function getAnchorAttributes(filePath, linkTitle) {
     }
     const file = fs.readFileSync(fullPath, "utf8");
     const frontMatter = matter(file, matterOptions);
-    if (frontMatter.data.permalink) {
-      permalink = frontMatter.data.permalink;
-    }
-    if (
-      frontMatter.data.tags &&
-      frontMatter.data.tags.indexOf("gardenEntry") != -1
-    ) {
-      permalink = "/";
-    }
+    permalink = resolveNotePermalink({
+      permalink: frontMatter.data.permalink,
+      inputPath: fileName,
+      tags: frontMatter.data.tags,
+    }) || permalink;
     if (frontMatter.data.noteIcon) {
       noteIcon = frontMatter.data.noteIcon;
     }

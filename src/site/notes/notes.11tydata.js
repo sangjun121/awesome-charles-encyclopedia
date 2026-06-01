@@ -1,5 +1,6 @@
 require("dotenv").config();
 const settings = require("../../helpers/constants");
+const { resolveNotePermalink } = require("../../helpers/permalinkUtils");
 
 const allSettings = settings.ALL_NOTE_SETTINGS;
 
@@ -12,10 +13,11 @@ module.exports = {
       return "layouts/note.njk";
     },
     permalink: (data) => {
-      if (data.tags.indexOf("gardenEntry") != -1) {
-        return "/";
-      }
-      return data.permalink || undefined;
+      return resolveNotePermalink({
+        permalink: data.permalink,
+        inputPath: data.page.inputPath,
+        tags: data.tags,
+      });
     },
     basesNotes: (data) => {
       if (!data.collections || !data.collections.note) return [];
