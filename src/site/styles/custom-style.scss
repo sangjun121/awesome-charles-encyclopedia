@@ -545,7 +545,7 @@ body.dg-resizing-filetree {
 
 body .sidebar {
     left: auto !important;
-    right: clamp(24px, 4vw, 72px);
+    right: clamp(12px, 2vw, 32px);
     width: var(--dg-sidebar-max-width);
     max-width: var(--dg-sidebar-max-width);
     transition: transform 180ms ease, opacity 180ms ease;
