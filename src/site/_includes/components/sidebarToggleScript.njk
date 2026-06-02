@@ -2,6 +2,9 @@
   document.addEventListener("DOMContentLoaded", () => {
     const leftKey = "dg-left-sidebar-hidden";
     const rightKey = "dg-right-sidebar-hidden";
+    const widthKey = "dg-filetree-width";
+    const minFiletreeWidth = 120;
+    const maxFiletreeWidth = 420;
     const body = document.body;
 
     function getStoredState(key) {
@@ -27,15 +30,42 @@
       storeState(key, hidden);
     }
 
+    function getStoredWidth() {
+      try {
+        if (!window.localStorage) return null;
+        const width = Number.parseInt(window.localStorage.getItem(widthKey), 10);
+        if (Number.isNaN(width)) return null;
+        return Math.min(maxFiletreeWidth, Math.max(minFiletreeWidth, width));
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function setFiletreeWidth(width) {
+      const nextWidth = Math.min(maxFiletreeWidth, Math.max(minFiletreeWidth, width));
+      body.style.setProperty("--dg-filetree-width", `${nextWidth}px`);
+      body.style.setProperty("--dg-filetree-min-width", `${nextWidth}px`);
+
+      try {
+        if (window.localStorage) {
+          window.localStorage.setItem(widthKey, String(nextWidth));
+        }
+      } catch (error) {
+        // Width still applies for this page view when storage is unavailable.
+      }
+    }
+
+    const storedWidth = getStoredWidth();
+    if (storedWidth) {
+      setFiletreeWidth(storedWidth);
+    }
+
     setSidebarState(leftKey, getStoredState(leftKey));
     setSidebarState(rightKey, getStoredState(rightKey));
 
     const controls = document.createElement("div");
     controls.className = "sidebar-toggle-controls";
     controls.innerHTML = `
-      <button class="sidebar-toggle-button" type="button" data-sidebar-toggle="left" aria-label="Toggle left sidebar" title="왼쪽 사이드바">
-        <i data-lucide="panel-left"></i>
-      </button>
       <button class="sidebar-toggle-button" type="button" data-sidebar-toggle="right" aria-label="Toggle right sidebar" title="오른쪽 사이드바">
         <i data-lucide="panel-right"></i>
       </button>
@@ -43,16 +73,85 @@
 
     document.body.appendChild(controls);
 
+    const filetree = document.querySelector(".filetree-wrapper");
+    let titleToggleButton = null;
+    const reopenButton = document.createElement("button");
+    reopenButton.className = "sidebar-toggle-button sidebar-reopen-button";
+    reopenButton.type = "button";
+    reopenButton.setAttribute("data-sidebar-toggle", "left");
+    reopenButton.setAttribute("aria-label", "Open left sidebar");
+    reopenButton.setAttribute("title", "왼쪽 사이드바 열기");
+    reopenButton.innerHTML = '<i data-lucide="panel-left-open"></i>';
+    document.body.appendChild(reopenButton);
+
+    if (filetree) {
+      const filetreeSidebar = filetree.querySelector(".filetree-sidebar");
+      const titleLink = filetreeSidebar
+        ? Array.from(filetreeSidebar.children).find((child) => child.tagName === "A")
+        : null;
+
+      if (filetreeSidebar && titleLink) {
+        const titleRow = document.createElement("div");
+        titleRow.className = "filetree-title-row";
+        titleLink.parentNode.insertBefore(titleRow, titleLink);
+        titleRow.appendChild(titleLink);
+
+        titleToggleButton = document.createElement("button");
+        titleToggleButton.className = "sidebar-toggle-button filetree-title-toggle";
+        titleToggleButton.type = "button";
+        titleToggleButton.setAttribute("data-sidebar-toggle", "left");
+        titleToggleButton.setAttribute("aria-label", "Toggle left sidebar");
+        titleToggleButton.setAttribute("title", "왼쪽 사이드바");
+        titleToggleButton.innerHTML = '<i data-lucide="panel-left-close"></i>';
+        titleRow.appendChild(titleToggleButton);
+      }
+
+      const resizeHandle = document.createElement("div");
+      resizeHandle.className = "filetree-resize-handle";
+      resizeHandle.setAttribute("role", "separator");
+      resizeHandle.setAttribute("aria-orientation", "vertical");
+      resizeHandle.setAttribute("aria-label", "Resize left sidebar");
+      filetree.appendChild(resizeHandle);
+
+      let isResizing = false;
+
+      resizeHandle.addEventListener("pointerdown", (event) => {
+        isResizing = true;
+        body.classList.add("dg-resizing-filetree");
+        resizeHandle.setPointerCapture(event.pointerId);
+        event.preventDefault();
+      });
+
+      resizeHandle.addEventListener("pointermove", (event) => {
+        if (!isResizing) return;
+        setFiletreeWidth(event.clientX);
+      });
+
+      function finishResize(event) {
+        if (!isResizing) return;
+        isResizing = false;
+        body.classList.remove("dg-resizing-filetree");
+        if (resizeHandle.hasPointerCapture(event.pointerId)) {
+          resizeHandle.releasePointerCapture(event.pointerId);
+        }
+      }
+
+      resizeHandle.addEventListener("pointerup", finishResize);
+      resizeHandle.addEventListener("pointercancel", finishResize);
+    }
+
     function syncButtons() {
-      controls
-        .querySelector('[data-sidebar-toggle="left"]')
-        .classList.toggle("is-active", body.classList.contains(leftKey));
       controls
         .querySelector('[data-sidebar-toggle="right"]')
         .classList.toggle("is-active", body.classList.contains(rightKey));
+
+      if (titleToggleButton) {
+        titleToggleButton.classList.toggle("is-active", body.classList.contains(leftKey));
+      }
+      reopenButton.classList.toggle("is-active", body.classList.contains(leftKey));
     }
 
-    controls.addEventListener("click", (event) => {
+    document.addEventListener("click", (event) => {
       const button = event.target.closest("[data-sidebar-toggle]");
       if (!button) return;
 
@@ -60,6 +159,10 @@
       setSidebarState(key, !body.classList.contains(key));
       syncButtons();
     });
+
+    if (window.lucide) {
+      window.lucide.createIcons({ attrs: { class: ["svg-icon"] } });
+    }
 
     syncButtons();
   });
