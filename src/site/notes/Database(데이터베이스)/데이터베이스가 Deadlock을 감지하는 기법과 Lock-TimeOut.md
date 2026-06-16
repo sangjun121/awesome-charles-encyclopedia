@@ -2,6 +2,7 @@
 {"dg-publish":true,"permalink":"/database/deadlock-lock-time-out/","dg-note-properties":{"분류":"우테코","status":"작성중","type":"개념","topic":"database"}}
 ---
 
+[블로그 글로 읽어보기](https://junsangcho.tistory.com/26)
 ### 도입
 이번 레벨2 미션에서 **예약이 취소된 경우 대기 1번 예약을 자동으로 승격**시키는 API를 구현하였다. 한 트랜잭션 내에서 기존 예약을 취소하고, 대기 예약 조회하고, 승격되는 로직이 담겨, 예약 정보 Row에 대해 베타 락을 걸어주게 되었다.
 
